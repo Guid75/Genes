@@ -11,5 +11,5 @@ $ node server.js
 
 To connect on the game server with your browser, just go to :
 
-http://127.0.0.1:8088
+http://localhost:8088
 
