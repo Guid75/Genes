@@ -4,7 +4,12 @@ This project is entirely based on node.js
 
 IMPORTANT: At first, please run install.sh to install some node.js modules.
 
-After this, you will be able to launch the game server with : 
+After this, you will be able to launch the game server with :
 
-$ node server/server.js
+$ cd server
+$ node server.js
+
+To connect on the game server with your browser, just go to :
+
+http://127.0.0.1:8088
 
