@@ -5,3 +5,8 @@ body {
 #gene-title {
     font-size: 2em;
 }
+
+#syntax-error {
+    color: red;
+    margin-left: 1em;
+}
