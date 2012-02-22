@@ -1,11 +1,15 @@
+var history = [];
+var historyOffset = 0;
+var currentBuffer;
+
 function sendAndClear(inputEl, socket) {
     var value = inputEl.value;
     var syntaxError;
     try {
         var obj = eval('(' + value + ')');
         socket.emit('message', obj);
-        console.log(obj);
-
+        history.push(value);
+        historyOffset = history.length;
         inputEl.value = '';
         document.getElementById("syntax-error").hidden = true;
     } catch (e){
@@ -16,11 +20,30 @@ function sendAndClear(inputEl, socket) {
 }
 
 function upHistory(){
-    console.log('up');
+    var inputEl = document.getElementById("textarea-input");
+    if (historyOffset === 0){
+        return;
+    }
+
+    if (historyOffset === history.length){ // on top
+        currentBuffer = inputEl.value;
+    }
+    inputEl.value = history[historyOffset - 1];
+    historyOffset--;
 }
 
 function downHistory(){
-    console.log('down');
+    var inputEl = document.getElementById("textarea-input");
+    if (historyOffset === history.length){
+        return;
+    }
+
+    if (historyOffset === history.length - 1){ // on top
+        inputEl.value = currentBuffer;
+    } else {
+        inputEl.value = history[historyOffset + 1];
+    }
+    historyOffset++;
 }
 
 window.addEventListener('load', function () {
