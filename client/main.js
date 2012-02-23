@@ -55,6 +55,9 @@ window.addEventListener('load', function () {
     socket.on('disconnect', function(){
         outputEl.value += "Disconnected from the game server\n";
     });
+    socket.on('sessions', function(data){
+        outputEl.value += 'Received: ' + JSON.stringify(data) + '\n';
+    });
 
     var inputEl = document.getElementById("textarea-input");
     inputEl.onkeypress = function(event){

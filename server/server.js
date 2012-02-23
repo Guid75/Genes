@@ -53,8 +53,9 @@ app.listen(port);
 
 // only for messages now
 var io = socketio.listen(app);
-io.sockets.on('connection', function (socket) {
+io.sockets.on('connection', function(socket) {
     console.log('connection');
+    socket.emit('sessions', game.getSessions());
     socket.on('message', function(data){
         console.log(data);
     });

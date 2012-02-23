@@ -1,7 +1,9 @@
+var _ = require('underscore');
+
 // game namespace
 var maxSessionCount = 4;
 
-exports.maxPlayersBySession = 5;
+var maxPlayersBySession = 5;
 
 var Player = function(config){
     config = config || {};
@@ -34,7 +36,19 @@ Session.prototype.addPlayer = function(player){
 exports.Session = Session;
 
 // create all empty sessions
-var sessions = [];
+var allSessions = [];
 for (var i = 0; i < maxSessionCount; i++){
-    sessions.push(new Session);
+    allSessions.push(new Session);
 }
+
+exports.getSessions = function(){
+    var sessions = [];
+    var i = 0;
+    _.each(allSessions, function(session){
+        sessions.push({
+            full: session.isFull(),
+            started: session.started
+        });
+    });
+    return sessions;
+};
