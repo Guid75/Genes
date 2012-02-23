@@ -4,7 +4,8 @@ http = require("http"),
 fs = require("fs"),
 url = require("url"),
 mime = require("mime"),
-socketio = require("socket.io");
+socketio = require("socket.io"),
+game = require("./game.js");
 
 var path = "../client";
 var port = 8088;
