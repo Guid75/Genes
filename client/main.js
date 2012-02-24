@@ -10,7 +10,9 @@ function sendAndClear(inputEl, socket) {
         socket.emit('message', obj);
         history.push(value);
         historyOffset = history.length;
-        inputEl.value = '';
+        inputEl.value = '{ // enter your message fields below\n\n}';
+        var pos = inputEl.value.indexOf('\n') + 1;
+        inputEl.setSelectionRange(pos, pos);
         document.getElementById("syntax-error").hidden = true;
     } catch (e){
         syntaxError = document.getElementById("syntax-error");
@@ -79,4 +81,9 @@ window.addEventListener('load', function () {
     document.getElementById("send-button").onclick = function(){
         sendAndClear(inputEl, socket);
     };
+
+    inputEl.value = '{ // enter your message fields below\n\n}';
+    inputEl.focus();
+    var pos = inputEl.value.indexOf('\n') + 1;
+    inputEl.setSelectionRange(pos, pos);
 }, false);
