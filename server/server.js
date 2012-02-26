@@ -54,11 +54,12 @@ app.listen(port);
 // only for messages now
 var io = socketio.listen(app);
 io.sockets.on('connection', function(socket) {
-    console.log('connection');
-    socket.emit('sessions', game.getSessions());
+    console.log('new connection');
+    game.newPlayer(socket);
+/*    socket.emit('sessions', game.getSessions());
     socket.on('message', function(data){
         console.log(data);
-    });
+    });*/
 });
 
 console.log("Evo server launched on port %d", port);

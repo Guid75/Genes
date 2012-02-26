@@ -4,10 +4,13 @@ var currentBuffer;
 
 function sendAndClear(inputEl, socket) {
     var value = inputEl.value;
+    var typeEl = document.getElementById('message-type-select');
+    var msgType = typeEl.options[typeEl.selectedIndex].value;
+
     var syntaxError;
     try {
         var obj = eval('(' + value + ')');
-        socket.emit('message', obj);
+        socket.emit(msgType, obj);
         history.push(value);
         historyOffset = history.length;
         inputEl.value = '{ // enter your message fields below\n\n}';
@@ -56,6 +59,12 @@ window.addEventListener('load', function () {
     });
     socket.on('disconnect', function(){
         outputEl.value += "Disconnected from the game server\n";
+    });
+    socket.on('OK', function(data){
+        outputEl.value += "OK: " + JSON.stringify(data) + '\n';
+    });
+    socket.on('KO', function(data){
+        outputEl.value += "KO: " + JSON.stringify(data) + '\n';
     });
     socket.on('sessions', function(data){
         outputEl.value += 'Received: ' + JSON.stringify(data) + '\n';
