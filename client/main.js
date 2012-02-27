@@ -52,7 +52,7 @@ function downHistory(){
 }
 
 window.addEventListener('load', function () {
-    var socket = io.connect('http://localhost');
+    var socket = io.connect('http://' + location.hostname);
     var outputEl = document.getElementById("textarea-output");
     socket.on('connect', function(){
         outputEl.value += "connected on the game server\n";

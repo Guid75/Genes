@@ -2,8 +2,8 @@
   <head>
     <title>Genes</title>
     <link rel="stylesheet" type="text/css" href="main.css" media="screen" />
-    <script type="text/javascript" src="main.js"></script>
     <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript" src="main.js"></script>
   </head>
   <body>
     <!-- <canvas id="main-canvas" width="800" height="600"> -->
@@ -15,7 +15,8 @@
       <div><textarea cols="80" rows="10" id="textarea-input"></textarea></div>
       <span>Pick a message type:</span>
       <select id="message-type-select">
-      	<option value="join">Join</option>
+      	<option value="session">session</option>
+      	<option value="game">game</option>
       </select>
       <button type="button" id="send-button"><b>Send it!</b></button><span hidden="true" id="syntax-error">syntax error</span>
     </form>
