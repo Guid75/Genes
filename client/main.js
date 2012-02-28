@@ -2,6 +2,8 @@ var history = [];
 var historyOffset = 0;
 var currentBuffer;
 
+console.log(JSON);
+
 function sendAndClear(inputEl, socket) {
     var value = inputEl.value;
     var typeEl = document.getElementById('message-type-select');
@@ -69,6 +71,9 @@ window.addEventListener('load', function () {
     socket.on('sessions', function(data){
         outputEl.value += 'Received: ' + JSON.stringify(data) + '\n';
     });
+	socket.on('session', function(data) {
+		outputEl.value += 'Received: ' + JSON.stringify(data) + '\n';
+	});
 
     var inputEl = document.getElementById("textarea-input");
     inputEl.onkeypress = function(event){

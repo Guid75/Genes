@@ -9,17 +9,18 @@ var maxSessionCount = 5;
 
 // create all empty sessions
 var allSessions = [];
-for (var i = 0; i < maxSessionCount; i++){
-    allSessions.push(new Session);
+var i;
+for (i = 0; i < maxSessionCount; i++){
+    allSessions.push(new Session());
 }
 
-var getSessions = function(){
+var generateSessionsSnapshot = function(){
     var sessions = [];
     var i = 0;
     _.each(allSessions, function(session){
         sessions.push({
-            players: session.players.length,
-            running: session.running
+            players: session.playersCount(),
+            running: session.isRunning()
         });
     });
     return sessions;
@@ -28,7 +29,9 @@ var getSessions = function(){
 var socket2session = {};
 
 var joinAction = function(socket, data){
-    var session;
+    var
+	session,
+	sessionIndex;
 
     if (!_.isNumber(data.index)){
         socket.emit('KO', {
@@ -37,7 +40,9 @@ var joinAction = function(socket, data){
         console.error('no session index in the join message');
         return;
     }
-    if (data.index < 0 || data.index >= maxSessionCount){
+	sessionIndex = data.index;
+
+    if (sessionIndex < 0 || sessionIndex >= maxSessionCount){
         socket.emit('KO', {
             message: 'session index out of bounds'
         });
@@ -46,52 +51,38 @@ var joinAction = function(socket, data){
     }
 
     session = socket2session[socket.id];
-    if (session){ // already in another session?
-        session.remove(socket.id);
+    if (session && allSessions[sessionIndex] === session){ // already in the wanted session?
+		socket.emit('KO', {
+			message: util.format("you are already in the session of index %s", sessionIndex)
+		});
+		return;
     }
 
-    session = allSessions[+data.index];
-    if (data.spectator){
-        if (!session.fullOfSpectators()){
-            session.addSpectator(socket);
-            socket2session[socket.id] = session;
-            socket.emit('OK', {
-				message: util.format('you successfully joined the session of index %s', data.index)
-            });
-        } else{
-            socket.emit('KO', {
-                message: util.format('session %s is full of spectators', data.index)
-            });
-        }
-    } else{
-        if (session.running){
-            socket.emit('KO', {
-                message: util.format('session %s is running', data.index)
-            });
-        }
-        if (!session.fullOfPlayers()){
-            session.addPlayer(socket);
-            socket2session[socket.id] = session;
-            socket.emit('OK', {
-				message: util.format('you successfully joined the session of index %s', data.index)
-            });
-        } else{
-            socket.emit('KO', {
-                message: util.format('session %s is full of players', data.index)
-            });
-        }
-    }
+	if (session){ // remove of the old session
+		session.removePlayer(socket);
+		socket2session[socket.id] = null; // TODO: remove definitively the field
+	}
+
+    session = allSessions[sessionIndex];
+	if (session.addPlayer({ // maybe callback later?
+		socket: socket,
+		spectator: data.spectator
+	})){
+		socket2session[socket.id] = session;
+	}
 };
 
 var leaveAction = function(socket, data){
-    socket.emit('KO', {
-        message: 'not yet implemented'
-    });
+    session = socket2session[socket.id];
+	if (session){
+		session.removePlayer(socket);
+		socket2session[socket.id] = null; // TODO: remove definitively the field
+	}
 };
 
 exports.newPlayer = function(socket){
     // at first, send all sessions to the new player
-    socket.emit('sessions', getSessions());
+    socket.emit('sessions', generateSessionsSnapshot());
 
 	socket.on('session', function(data){
 		var action = data.action ? data.action.toLowerCase() : null;
@@ -109,8 +100,4 @@ exports.newPlayer = function(socket){
 
 	socket.on('game', function(data){
 	});
-
-    // we only expect a join message for now
-    socket.on('join', function(data){
-    });
 };
