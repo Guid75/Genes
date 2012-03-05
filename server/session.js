@@ -7,6 +7,8 @@ events = require('events');
 var maxPlayers = 5;
 var maxSpectators = 100;
 
+var generatedPlayerNamePrefix = 'Player';
+
 var Session = function(config){
     config = config || {};
 
@@ -22,6 +24,24 @@ Session.prototype.isRunning = function(){ return this.running; };
 Session.prototype.fullOfPlayers = function(){ return this.players.length === maxPlayers; };
 Session.prototype.fullOfSpectators = function(){ return this.spectators.length === maxSpectators; };
 Session.prototype.isRunnable = function(){ return this.players.length >= 3; }; // if we have the right count of players to start a game session
+
+Session.prototype.createUniquePlayerName = function() {
+	var i, j, name, player, found, len = this.everybody.length;
+	for (i = 1; i <= len; i++) {
+		name = util.format('%s_%d', generatedPlayerNamePrefix, i);
+		found = false;
+		for (j = 0; j < len; j++) {
+			if (this.everybody[j].name.toLowerCase() === name.toLowerCase()){
+				found = true;
+				break;
+			}
+		}
+		if (!found) {
+			return name;
+		}
+	}
+	return util.format('%s_%d', generatedPlayerNamePrefix, len + 1);
+};
 
 Session.prototype.addPlayer = function(config){
 	var player, socket, spectator;
@@ -55,8 +75,9 @@ Session.prototype.addPlayer = function(config){
 			socket: config.socket
 		}));
 	}
+	player.name = this.createUniquePlayerName();
 	this.everybody.push(player);
-	socket.emit('OK', { message: 'session has successfully been joined' });
+	socket.emit('OK', { message: util.format('you successfully joined the session. Your name is "%s"', player.name) });
 	this.broadcast({
 		blacklist: player,
 		type: 'session',
@@ -66,6 +87,9 @@ Session.prototype.addPlayer = function(config){
 			spectator: spectator
 		}
 	});
+
+	// plug events
+
 	return true;
 };
 
