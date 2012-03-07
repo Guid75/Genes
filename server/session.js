@@ -50,6 +50,7 @@ Session.prototype.addPlayer = function(config){
 		throw new Error('Session.addPlayer(): no socket provided');
 	}
 	socket = config.socket;
+
 	if (config.spectator){
 		if (this.fullOfSpectators()){
             socket.emit('KO', {
@@ -88,8 +89,6 @@ Session.prototype.addPlayer = function(config){
 		}
 	});
 
-	// plug events
-
 	return true;
 };
 
@@ -113,7 +112,18 @@ Session.prototype.broadcast = function(config) {
 	}
 };
 
-Session.prototype.removePlayer = function(socket){
+Session.prototype.getPlayerBySocket = function(socket) {
+	var foundPlayer;
+	this.everybody.every(function(player) {
+		if (player.socket === socket) {
+			foundPlayer = player;
+			return false;
+		}
+	});
+	return foundPlayer;
+};
+
+Session.prototype.removePlayer = function(socket) {
 	var i, len = this.everybody.length, player, index;
 	for (i = 0; i < len; i++){
 		player = this.everybody[i];
@@ -126,6 +136,14 @@ Session.prototype.removePlayer = function(socket){
 			return;
 		}
 	}
+};
+
+Session.prototype.treatGameEvent = function(socket, data) {
+	var player = this.getPlayerBySocket(socket);
+	if (!player) {
+		throw new Error("no player found for the socket argument");
+	}
+
 };
 
 exports.Session = Session;

@@ -38,7 +38,7 @@ var joinAction = function(socket, data){
             message: 'no session index in the join message'
         });
         console.error('no session index in the join message');
-        return;
+        return false;
     }
 	sessionIndex = data.index;
 
@@ -47,7 +47,7 @@ var joinAction = function(socket, data){
             message: 'session index out of bounds'
         });
         console.error('session index out of bounds');
-        return;
+        return false;
     }
 
     session = socket2session[socket.id];
@@ -55,7 +55,7 @@ var joinAction = function(socket, data){
 		socket.emit('KO', {
 			message: util.format("you are already in the session of index %s", sessionIndex)
 		});
-		return;
+		return false;
     }
 
 	if (session){ // remove of the old session
@@ -69,7 +69,9 @@ var joinAction = function(socket, data){
 		spectator: data.spectator
 	})){
 		socket2session[socket.id] = session;
+		return true;
 	}
+	return false;
 };
 
 var leaveAction = function(socket, data){
@@ -80,15 +82,17 @@ var leaveAction = function(socket, data){
 	}
 };
 
-exports.newPlayer = function(socket){
+exports.newPlayer = function(socket) {
     // at first, send all sessions to the new player
     socket.emit('sessions', generateSessionsSnapshot());
 
-	socket.on('session', function(data){
+	socket.on('session', function(data) {
 		var action = data.action ? data.action.toLowerCase() : null;
-		if (action === 'join'){
-			joinAction(socket, data);
-		} else if (action === 'leave'){
+		var session;
+		if (action === 'join') {
+			if (joinAction(socket, data)) {
+			}
+		} else if (action === 'leave') {
 			leaveAction(socket, data);
 		} else{
             socket.emit('KO', {
@@ -98,6 +102,10 @@ exports.newPlayer = function(socket){
 		}
 	});
 
-	socket.on('game', function(data){
+	socket.on('game', function(data) {
+		var session = socket2session[socket.id];
+		if (session) {
+			session.treatGameEvent(socket, data);
+		}
 	});
 };
