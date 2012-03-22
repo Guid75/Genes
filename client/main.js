@@ -70,6 +70,7 @@ window.addEventListener('load', function () {
     });
     socket.on('sessions', function(data){
         outputEl.value += 'Received: ' + JSON.stringify(data) + '\n';
+        Game.refreshMainMenu(data);
     });
 	socket.on('session', function(data) {
 		outputEl.value += 'Received: ' + JSON.stringify(data) + '\n';

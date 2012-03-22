@@ -1,0 +1,2 @@
+// global game namespace
+Game = {};

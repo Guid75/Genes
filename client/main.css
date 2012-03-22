@@ -1,5 +1,5 @@
 body {
-    background-color: #CCCCCC;
+    background-color: #CCDDCC;
 }
 
 #gene-title {
@@ -9,4 +9,46 @@ body {
 #syntax-error {
     color: red;
     margin-left: 1em;
+}
+
+#debug-form {
+    float: left;
+}
+
+#main-menu {
+    float: left;
+}
+
+.main-menu-header-row {
+    background-color: #0A0;
+    text-align: center;
+    color: #DDD;
+}
+
+.main-menu-row {
+    background-color: #DDD;
+    text-align: center;
+    cursor: hand;
+}
+
+.main-menu-row:hover {
+    background-color: #CCC;
+    text-align: center;
+}
+
+.main-menu-row-focus {
+    background-color: #BBB;
+    text-align: center;
+}
+
+.main-menu-table td {
+	padding: 0px;
+}
+
+.main-menu-table th {
+	padding: 0px;
+}
+
+.main-menu-table {
+    border-collapse: collapse;
 }
