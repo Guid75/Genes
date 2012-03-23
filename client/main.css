@@ -19,6 +19,12 @@ body {
     float: left;
 }
 
+#session-list {
+    overflow: auto;
+    height: 150px;
+    background-color: #DDD;
+}
+
 .main-menu-header-row {
     background-color: #0A0;
     text-align: center;

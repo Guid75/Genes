@@ -5,7 +5,7 @@ Session = require('./session.js').Session,
 Player = require('./player.js').Player;
 
 // game namespace
-var maxSessionCount = 5;
+var maxSessionCount = 10;
 
 // create all empty sessions
 var allSessions = [];
