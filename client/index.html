@@ -5,6 +5,7 @@
     <script type="text/javascript" src="/socket.io/socket.io.js"></script>
     <script type="text/javascript" src="contrib/jquery.js"></script>
     <script type="text/javascript" src="core.js"></script>
+    <script type="text/javascript" src="game.js"></script>
     <script type="text/javascript" src="main-menu.js"></script>
     <script type="text/javascript" src="main.js"></script>
   </head>
@@ -24,8 +25,8 @@
       <button type="button" id="send-button"><b>Send it!</b></button><span hidden="true" id="syntax-error">syntax error</span>
     </form>
     <div id="main-menu">
-      <div id="session-list"></div>
-      <button type="button" id="join-button"><b>Join session</b></button>
+      <div id="session-list" unselectable="on" class="unselectable"></div>
+      <button type="button" id="join-button" unselectable="on" class="unselectable"><b>Join session</b></button>
     </div>
   </body>
 </html>

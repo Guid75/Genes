@@ -84,7 +84,10 @@ var leaveAction = function(socket, data){
 
 exports.newPlayer = function(socket) {
     // at first, send all sessions to the new player
-    socket.emit('sessions', generateSessionsSnapshot());
+    socket.emit('session', {
+        event: 'list',
+        sessions: generateSessionsSnapshot()
+    });
 
 	socket.on('session', function(data) {
 		var action = data.action ? data.action.toLowerCase() : null;
