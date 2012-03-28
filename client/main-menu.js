@@ -19,12 +19,13 @@ Game.mainMenu.refreshAll = function(data) {
       '<th width="80" class="main-menu-column-players">Players</th>' +
       '<th width="80" class="main-menu-column-running">Running</th>' +
       '</tr></table></div>').appendTo('#session-list');
+    var rowsElem = $('<div class="main-menu-rows"></div>').appendTo('#session-list');
     for (var i = 0; i < len; i++) {
         $('<div class="main-menu-item"><table class="main-menu-table"><tr class="main-menu-row">' +
           '<td width="80" class="main-menu-column-index">' + (i + 1) + '</td>' +
           '<td width="80" class="main-menu-column-players">' + data[i].players + '</td>' +
           '<td width="80" class="main-menu-column-running">' + (data[i].running ? 'Yes' : 'No')  + '</td>' +
-          '</tr></table></div>').appendTo('#session-list');
+          '</tr></table></div>').appendTo(rowsElem);
     }
 
     makeUnselectable($('#session-list'));
@@ -53,7 +54,7 @@ Game.mainMenu.refreshAll = function(data) {
  * }
  */
 Game.mainMenu.refreshServer = function(index, server) {
-    var menuItem = $('#session-list').children('.main-menu-item')[index];
+    var menuItem = $('#session-list > .main-menu-rows').children('.main-menu-item')[index];
     var playersElem = $(menuItem).find('td.main-menu-column-players')[0];
     playersElem.innerHTML = server.players ? '<b>' + server.players + '</b>': server.players;
     var runningElem = $(menuItem).find('td.main-menu-column-running')[0];
