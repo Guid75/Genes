@@ -53,6 +53,8 @@ function downHistory(){
 
 window.addEventListener('load', function () {
     var socket = io.connect('http://' + location.hostname);
+    Game.socket = socket;
+
     var outputEl = document.getElementById("textarea-output");
     socket.on('connect', function(){
         outputEl.value += "connected on the game server\n";

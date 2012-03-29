@@ -26,6 +26,7 @@ var generateSessionsSnapshot = function(){
     return sessions;
 };
 
+var sockets = [];
 var socket2session = {};
 
 var joinAction = function(socket, data){
@@ -61,6 +62,18 @@ var joinAction = function(socket, data){
 	if (session){ // remove of the old session
 		session.removePlayer(socket);
 		socket2session[socket.id] = null; // TODO: remove definitively the field
+
+        // broadcast the new server state to everybody
+        _.each(sockets, function(socket) {
+            socket.emit('session', {
+                event: 'refresh',
+                index: allSessions.indexOf(session),
+                server: {
+                    players: session.playersCount(),
+                    running: session.isRunning()
+                }
+            });
+        });
 	}
 
     session = allSessions[sessionIndex];
@@ -69,6 +82,18 @@ var joinAction = function(socket, data){
 		spectator: data.spectator
 	})){
 		socket2session[socket.id] = session;
+
+        // broadcast the new server state to everybody
+        _.each(sockets, function(socket) {
+            socket.emit('session', {
+                event: 'refresh',
+                index: allSessions.indexOf(session),
+                server: {
+                    players: session.playersCount(),
+                    running: session.isRunning()
+                }
+            });
+        });
 		return true;
 	}
 	return false;
@@ -83,6 +108,15 @@ var leaveAction = function(socket, data){
 };
 
 exports.newPlayer = function(socket) {
+    sockets.push(socket);
+
+    socket.on('disconnect', function() {
+        var index = sockets.indexOf(socket);
+        if (index >= 0) {
+            sockets.splice(index, 1);
+        }
+    });
+
     // at first, send all sessions to the new player
     socket.emit('session', {
         event: 'list',
