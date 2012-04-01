@@ -65,19 +65,23 @@ window.addEventListener('load', function () {
     socket.on('connect', function(){
         addLineToOutput('connected on the game server');
     });
-    socket.on('disconnect', function(){
+    socket.on('disconnect', function() {
         addLineToOutput('Disconnected from the game server');
     });
-    socket.on('OK', function(data){
+    socket.on('OK', function(data) {
         addLineToOutput("OK: " + JSON.stringify(data));
     });
-    socket.on('KO', function(data){
+    socket.on('KO', function(data) {
         addLineToOutput("KO: " + JSON.stringify(data));
     });
 	socket.on('session', function(data) {
         addLineToOutput('Received: ' + JSON.stringify(data));
         Game.manageSessionMessage(data);
 	});
+
+    socket.on('game', function(data) {
+        Game.manageGameMessage(data);
+    });
 
     $('#clear-output-button').click(function() {
         $('#textarea-output')[0].value = '';

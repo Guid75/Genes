@@ -48,18 +48,18 @@
         var i, len = data.length;
         $('#session-list').empty();
         $('<div><table class="main-menu-table"><tr class="main-menu-header-row">' +
-          '<th width="80" class="main-menu-column-index">Server</th>' +
-          '<th width="80" class="main-menu-column-players">Players</th>' +
-          '<th width="80" class="main-menu-column-players">Spectators</th>' +
-          '<th width="80" class="main-menu-column-running">Running</th>' +
+          '<th class="main-menu-column-index main-menu-column">Server</th>' +
+          '<th class="main-menu-column-players main-menu-column">Players</th>' +
+          '<th class="main-menu-column main-menu-column-spectators">Spectators</th>' +
+          '<th class="main-menu-column-running main-menu-column">Running</th>' +
           '</tr></table></div>').appendTo('#session-list');
         var rowsElem = $('<div class="main-menu-rows"></div>').appendTo('#session-list');
         for (var i = 0; i < len; i++) {
             $('<div class="main-menu-item"><table class="main-menu-table"><tr class="main-menu-row">' +
-              '<td width="80" class="main-menu-column-index">' + (i + 1) + '</td>' +
-              '<td width="80" class="main-menu-column-players">' + (data[i].players ? '<b>' + data[i].players + '</b' : data[i].players)  + '</td>' +
-              '<td width="80" class="main-menu-column-spectators">' + (data[i].spectators ? '<b>' + data[i].spectators + '</b' : data[i].spectators)  + '</td>' +
-              '<td width="80" class="main-menu-column-running">' + (data[i].running ? 'Yes' : 'No')  + '</td>' +
+              '<td class="main-menu-column-index main-menu-column">' + (i + 1) + '</td>' +
+              '<td class="main-menu-column-players main-menu-column">' + (data[i].players ? '<b>' + data[i].players + '</b' : data[i].players)  + '</td>' +
+              '<td class="main-menu-column main-menu-column-spectators">' + (data[i].spectators ? '<b>' + data[i].spectators + '</b' : data[i].spectators)  + '</td>' +
+              '<td class="main-menu-column-running main-menu-column">' + (data[i].running ? 'Yes' : 'No')  + '</td>' +
               '</tr></table></div>').appendTo(rowsElem);
         }
 
@@ -99,6 +99,8 @@
     };
 
     window.addEventListener('load', function () {
+        Game.mainMenu.refreshAll([]);
+
         $('#join-player-button').click(joinCallback);
         $('#join-spectator-button').click(joinSpectatorCallback);
     }, false);

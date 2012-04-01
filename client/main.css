@@ -20,7 +20,7 @@ body {
 }
 
 #session-list {
-    overflow: auto;
+/*  overflow: auto;*/
     background-color: #DDD;
 }
 
@@ -28,6 +28,17 @@ body {
     background-color: #0A0;
     text-align: center;
     color: #DDD;
+}
+
+.main-menu-column {
+    width: 80px;
+    max-width: 80px;
+    overflow: hidden;
+}
+
+.main-menu-column-spectators {
+    width: 100px;
+    max-width: 100px;
 }
 
 .main-menu-rows {
@@ -61,6 +72,7 @@ body {
 
 .main-menu-table {
     border-collapse: collapse;
+    table-layout: fixed;
 }
 
 *.unselectable {
