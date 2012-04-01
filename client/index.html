@@ -13,9 +13,10 @@
     <!-- <canvas id="main-canvas" width="800" height="600"> -->
     <!--   Sorry, your browser seems not to support HTML5 canvas. -->
     <!-- </canvas> -->
-    <form id="debug-form">
+    <div id="debug-form">
       <div id="gene-title">Genes</div><br/>
       <div><textarea cols="80" rows="25" id="textarea-output" readonly="readonly"></textarea></div>
+      <button id="clear-output-button">clear output</button>
       <div><textarea cols="80" rows="10" id="textarea-input"></textarea></div>
       <span>Pick a message type:</span>
       <select id="message-type-select">
@@ -23,10 +24,11 @@
       	<option value="game">game</option>
       </select>
       <button type="button" id="send-button"><b>Send it!</b></button><span hidden="true" id="syntax-error">syntax error</span>
-    </form>
+    </div>
     <div id="main-menu">
       <div id="session-list" unselectable="on" class="unselectable"></div>
-      <button type="button" id="join-button" unselectable="on" class="unselectable"><b>Join session</b></button>
+      <button type="button" id="join-player-button" unselectable="on" class="unselectable"><b>Join</b></button>
+      <button type="button" id="join-spectator-button" unselectable="on" class="unselectable"><b>Join as spectator</b></button>
     </div>
   </body>
 </html>

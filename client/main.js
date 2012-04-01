@@ -1,6 +1,7 @@
 var history = [];
 var historyOffset = 0;
 var currentBuffer;
+var outputEl;
 
 function sendAndClear(inputEl, socket) {
     var value = inputEl.value;
@@ -51,31 +52,36 @@ function downHistory(){
     historyOffset++;
 }
 
+function addLineToOutput(text) {
+    outputEl.value += text + '\n';
+    outputEl.scrollTop = outputEl.scrollHeight;
+}
+
 window.addEventListener('load', function () {
     var socket = io.connect('http://' + location.hostname);
     Game.socket = socket;
 
-    var outputEl = document.getElementById("textarea-output");
+    outputEl = $('#textarea-output')[0];
     socket.on('connect', function(){
-        outputEl.value += "connected on the game server\n";
+        addLineToOutput('connected on the game server');
     });
     socket.on('disconnect', function(){
-        outputEl.value += "Disconnected from the game server\n";
+        addLineToOutput('Disconnected from the game server');
     });
     socket.on('OK', function(data){
-        outputEl.value += "OK: " + JSON.stringify(data) + '\n';
+        addLineToOutput("OK: " + JSON.stringify(data));
     });
     socket.on('KO', function(data){
-        outputEl.value += "KO: " + JSON.stringify(data) + '\n';
+        addLineToOutput("KO: " + JSON.stringify(data));
     });
-/*    socket.on('sessions', function(data){
-        outputEl.value += 'Received: ' + JSON.stringify(data) + '\n';
-        Game.refreshMainMenu(data);
-    });*/
 	socket.on('session', function(data) {
-		outputEl.value += 'Received: ' + JSON.stringify(data) + '\n';
+        addLineToOutput('Received: ' + JSON.stringify(data));
         Game.manageSessionMessage(data);
 	});
+
+    $('#clear-output-button').click(function() {
+        $('#textarea-output')[0].value = '';
+    });
 
     var inputEl = document.getElementById("textarea-input");
     inputEl.onkeypress = function(event){

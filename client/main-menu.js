@@ -25,6 +25,22 @@
         });
     };
 
+    var joinSpectatorCallback = function() {
+        // get the server index
+        if (!focusTr) {
+            return;
+        }
+
+        var itemEl = $(focusTr).parents('div.main-menu-item'),
+        serverIndex = $(itemEl).index();
+
+        Game.socket.emit('session', {
+            action: 'join',
+            index: serverIndex,
+            spectator: true
+        });
+    };
+
     var focusTr;
 
     Game.mainMenu = {};
@@ -34,6 +50,7 @@
         $('<div><table class="main-menu-table"><tr class="main-menu-header-row">' +
           '<th width="80" class="main-menu-column-index">Server</th>' +
           '<th width="80" class="main-menu-column-players">Players</th>' +
+          '<th width="80" class="main-menu-column-players">Spectators</th>' +
           '<th width="80" class="main-menu-column-running">Running</th>' +
           '</tr></table></div>').appendTo('#session-list');
         var rowsElem = $('<div class="main-menu-rows"></div>').appendTo('#session-list');
@@ -41,6 +58,7 @@
             $('<div class="main-menu-item"><table class="main-menu-table"><tr class="main-menu-row">' +
               '<td width="80" class="main-menu-column-index">' + (i + 1) + '</td>' +
               '<td width="80" class="main-menu-column-players">' + (data[i].players ? '<b>' + data[i].players + '</b' : data[i].players)  + '</td>' +
+              '<td width="80" class="main-menu-column-spectators">' + (data[i].spectators ? '<b>' + data[i].spectators + '</b' : data[i].spectators)  + '</td>' +
               '<td width="80" class="main-menu-column-running">' + (data[i].running ? 'Yes' : 'No')  + '</td>' +
               '</tr></table></div>').appendTo(rowsElem);
         }
@@ -74,12 +92,15 @@
         var menuItem = $('#session-list > .main-menu-rows').children('.main-menu-item')[index];
         var playersElem = $(menuItem).find('td.main-menu-column-players')[0];
         playersElem.innerHTML = server.players ? '<b>' + server.players + '</b>': server.players;
+        var spectatorsElem = $(menuItem).find('td.main-menu-column-spectators')[0];
+        spectatorsElem.innerHTML = server.spectators ? '<b>' + server.spectators + '</b>': server.spectators;
         var runningElem = $(menuItem).find('td.main-menu-column-running')[0];
         runningElem.innerText = server.running ? 'Yes' : 'No';
     };
 
     window.addEventListener('load', function () {
-        $('#join-button').click(joinCallback);
+        $('#join-player-button').click(joinCallback);
+        $('#join-spectator-button').click(joinSpectatorCallback);
     }, false);
 
 }())
