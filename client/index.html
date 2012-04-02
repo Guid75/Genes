@@ -5,6 +5,7 @@
     <script type="text/javascript" src="/socket.io/socket.io.js"></script>
     <script type="text/javascript" src="contrib/jquery.js"></script>
     <script type="text/javascript" src="core.js"></script>
+    <script type="text/javascript" src="board.js"></script>
     <script type="text/javascript" src="game.js"></script>
     <script type="text/javascript" src="main-menu.js"></script>
     <script type="text/javascript" src="main.js"></script>
@@ -25,10 +26,15 @@
       </select>
       <button type="button" id="send-button"><b>Send it!</b></button><span hidden="true" id="syntax-error">syntax error</span>
     </div>
-    <div id="main-menu">
-      <div id="session-list" unselectable="on" class="unselectable"></div>
-      <button type="button" id="join-player-button" unselectable="on" class="unselectable"><b>Join</b></button>
-      <button type="button" id="join-spectator-button" unselectable="on" class="unselectable"><b>Join as spectator</b></button>
+    <div id="game-zone">
+      <div id="main-menu">
+        <div id="session-list" unselectable="on" class="unselectable"></div>
+        <button type="button" id="join-player-button" unselectable="on" class="unselectable"><b>Join</b></button>
+        <button type="button" id="join-spectator-button" unselectable="on" class="unselectable"><b>Join as spectator</b></button>
+      </div>
+      <div>
+        <canvas id="game-canvas"/>
+      </div>
     </div>
   </body>
 </html>
