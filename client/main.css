@@ -87,3 +87,9 @@ body {
    -ms-user-select: none;
    user-select: none;
 }
+
+#game-canvas {
+    width: 800px;
+    height: 600px;
+    background-color: black;
+}
