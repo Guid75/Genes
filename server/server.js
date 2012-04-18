@@ -7,12 +7,13 @@ mime = require("mime"),
 socketio = require("socket.io"),
 game = require("./game.js");
 
-var path = "../client";
+var rootPath = "..";
+var clientPath = "../client";
 var port = 8088;
 
 var app = http.createServer(function (request, response) {
     var uri = url.parse(request.url).pathname;
-    var filename = libpath.join(path, uri);
+    var filename = libpath.join(uri.indexOf('/common/') === 0 ? rootPath : clientPath, uri);
 
     libpath.exists(filename, function (exists) {
         if (!exists) {

@@ -13,3 +13,9 @@ To connect on the game server with your browser, just go to:
 
 http://localhost:8088
 
+DEVELOPER NOTES
+
+server directory contains all server relative source files (which will be used by node.js)
+client directory contains all client relative source files (which will be sent to the web client)
+common directory contains all common source files (used both by server and client)
+
