@@ -102,7 +102,6 @@
         }
         return board;
     };
-
     exports.createBoard = createBoard;
     exports.boardsInfos = boardsInfos;
 }(typeof exports === 'undefined'? Game.board = {} : exports));

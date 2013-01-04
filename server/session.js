@@ -15,6 +15,14 @@ var Session = function(config) {
     this.running = false;
     this.players = [];
 	this.everybody = [];
+
+	// all the game elements
+	this.board = undefined;
+	this.auctionTable = undefined;
+	this.infoBoard = undefined;
+	this.geneBag = undefined;
+	this.eventCards = undefined;
+	this.pawns = undefined; // dinosaurs
 };
 
 util.inherits(Session, events.EventEmitter);
