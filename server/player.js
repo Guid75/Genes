@@ -8,4 +8,18 @@ var Player = function(config){
     this.name = config.name;
 };
 
+Player.prototype.init = function() {
+	// init all data structure
+	this.genes = {
+		card: 0,
+		tail: 0,
+		mutant: 0,
+		umbrella: 0,
+		egg: 0,
+		fur: 0,
+		horn: 0,
+		leg: 0
+	};
+};
+
 exports.Player = Player;

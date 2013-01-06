@@ -33,6 +33,11 @@ var getNextWeather = function(weather, dice) {
 	}
 };
 
+
+InfoBoard.prototype.moveNextWeather = function(dice) {
+	this.currentWeather = getNextWeather(this.currentWeather, dice);
+};
+
 // Session.prototype.playersCount = function() { return this.players.length; };
 // Session.prototype.spectatorsCount = function() { return this.everybody.length - this.players.length; };
 // Session.prototype.isRunning = function() { return this.running; };

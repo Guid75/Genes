@@ -168,4 +168,18 @@ Session.prototype.treatGameEvent = function(socket, data) {
 
 };
 
+Session.prototype.start = function() {
+	// init all data structure
+	this.geneBag = {
+		card: 6,
+		tail: 6,
+		mutant: 6,
+		umbrella: 8,
+		egg: 8,
+		fur: 8,
+		horn: 8,
+		leg: 12
+	};
+};
+
 exports.Session = Session;
