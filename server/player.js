@@ -1,3 +1,6 @@
+var
+_ = require('underscore');
+
 var Player = function(config){
     config = config || {};
 
@@ -20,6 +23,15 @@ Player.prototype.init = function() {
 		horn: 0,
 		leg: 0
 	};
+};
+
+Player.prototype.addGene = function(gene) {
+	if (!this.genes)
+		this.genes = {};
+
+	if (!_.isNumber(this.genes[gene]))
+		this.genes[gene] = 0;
+	this.genes[gene] = 1;
 };
 
 exports.Player = Player;
