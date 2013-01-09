@@ -10,10 +10,10 @@ var maxSpectators = 100;
 var generatedPlayerNamePrefix = 'Player';
 
 var Session = function(config) {
-    config = config || {};
+	config = config || {};
 
-    this.running = false;
-    this.players = [];
+	this.running = false;
+	this.players = [];
 	this.everybody = [];
 
 	// all the game elements
@@ -62,26 +62,26 @@ Session.prototype.addPlayer = function(config) {
 
 	if (config.spectator) {
 		if (this.fullOfSpectators()) {
-            socket.emit('KO', {
-                message: 'session has reached its maximum amount of spectators'
-            });
+			socket.emit('KO', {
+				message: 'session has reached its maximum amount of spectators'
+			});
 			return false;
 		}
 		spectator = true;
 		player = new Player({
-            socket: config.socket
+			socket: config.socket
 		});
-	} else{
-        if (this.running) {
-            socket.emit('KO', {
-                message: 'game has been started'
-            });
+	} else {
+		if (this.running) {
+			socket.emit('KO', {
+				message: 'game has been started'
+			});
 			return false;
-        }
+		}
 		if (this.fullOfPlayers()) {
-            socket.emit('KO', {
-                message: 'session has reached its maximum amount of players'
-            });
+			socket.emit('KO', {
+				message: 'session has reached its maximum amount of players'
+			});
 			return false;
 		}
 		this.players.push(player = new Player({
@@ -101,10 +101,10 @@ Session.prototype.addPlayer = function(config) {
 		}
 	});
 
-    this.emit('newplayer', this, {
-        name: player.name,
-        spectator: spectator
-    });
+	this.emit('newplayer', this, {
+		name: player.name,
+		spectator: spectator
+	});
 
 	return true;
 };
@@ -147,14 +147,13 @@ Session.prototype.removePlayer = function(socket) {
 		if (player.socket === socket) {
 			this.everybody.splice(i, 1);
 			index = this.players.indexOf(player);
-            ;
 			if (!(spectator = index < 0)) {
 				this.players.splice(index, 1);
 			}
-            this.emit('delplayer', this, {
-                name: player.name,
-                spectator: spectator
-            });
+			this.emit('delplayer', this, {
+				name: player.name,
+				spectator: spectator
+			});
 			return;
 		}
 	}
@@ -165,7 +164,71 @@ Session.prototype.treatGameEvent = function(socket, data) {
 	if (!player) {
 		throw new Error("no player found for the socket argument");
 	}
+	if (data.action === 'start') {
+		this.start();
+	}
+};
 
+var prepareInitiativePhase = function(session) {
+	var
+	maxTailLen = -1,
+	largeTailplayers;
+	_.each(session.players, function(player, index) {
+		var tailLen = player.getGeneCount('tail');
+		if (tailLen > maxTailLen) {
+			maxTailLen = tailLen;
+			largeTailPlayers = [ index ];
+		} else if (tailLen === maxTailLen) {
+			largeTailPlayers.push(index);
+		}
+	});
+
+	if (largeTailPlayers.length === 1) {
+	}
+};
+
+var prepareWeatherPhase = function(session) {
+	// TODO
+};
+
+var prepareMoveAndFightPhase = function(session) {
+	// TODO
+};
+
+var prepareBirthsPhase = function(session) {
+	// TODO
+};
+
+var prepareMeteoritePhase = function(session) {
+	// TODO
+};
+
+var preparePhase = function(session) {
+	switch (session.phase) {
+	case 1:
+		prepareInitiativePhase(session);
+		break;
+	case 2:
+		prepareWeatherPhase(session);
+		break;
+	case 3:
+		prepareMoveAndFightPhase(session);
+		break;
+	case 4:
+		prepareBirthsPhase(session);
+		break;
+	case 5:
+		prepareMeteoritePhase(session);
+		break;
+	default:
+		// TODO: raise an error
+		break;
+	}
+};
+
+var initTurn = function(session) {
+	session.phase = 1;
+	preparePhase(session);
 };
 
 Session.prototype.start = function() {
@@ -180,6 +243,9 @@ Session.prototype.start = function() {
 		horn: 8,
 		leg: 12
 	};
+
+	this.turn = 1;
+	initTurn(this);
 };
 
 exports.Session = Session;

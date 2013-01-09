@@ -11,18 +11,10 @@ var Player = function(config){
     this.name = config.name;
 };
 
-Player.prototype.init = function() {
+// init before a session
+Player.prototype.initSession = function() {
 	// init all data structure
-	this.genes = {
-		card: 0,
-		tail: 0,
-		mutant: 0,
-		umbrella: 0,
-		egg: 0,
-		fur: 0,
-		horn: 0,
-		leg: 0
-	};
+    this.genes = null;
 };
 
 Player.prototype.addGene = function(gene) {
@@ -32,6 +24,12 @@ Player.prototype.addGene = function(gene) {
 	if (!_.isNumber(this.genes[gene]))
 		this.genes[gene] = 0;
 	this.genes[gene] = 1;
+};
+
+Player.prototype.getGeneCount = function(gene) {
+	if (this.genes && _.isNumber(this.genes[gene]))
+		return this.genes[gene];
+	return 0;
 };
 
 exports.Player = Player;
