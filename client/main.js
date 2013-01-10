@@ -126,7 +126,7 @@
             sendAndClear(inputEl, socket);
         };
 
-        inputEl.value = '{ // enter your message fields below\n\n}';
+        inputEl.value = '{ // enter your message fields below\n  action: \'start\'\n}';
         inputEl.focus();
         var pos = inputEl.value.indexOf('\n') + 1;
         inputEl.setSelectionRange(pos, pos);

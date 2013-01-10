@@ -52,58 +52,66 @@ Session.prototype.createUniquePlayerName = function() {
 	return util.format('%s_%d', generatedPlayerNamePrefix, len + 1);
 };
 
+var sendMessage = function(socket, event, message) {
+	if (socket) {
+		socket.emit(event, { message: message });
+	} else {
+		if (event === 'KO')
+			console.error('error: ' + message);
+		else
+			console.log(message);
+	}
+};
+
 Session.prototype.addPlayer = function(config) {
-	var player, socket, spectator;
+	var
+	player;
+
 	config = config || {};
-	if (!config.socket) {
+	if (!config.isBot && !config.socket) {
 		throw new Error('Session.addPlayer(): no socket provided');
 	}
-	socket = config.socket;
 
+	// can the player join?
 	if (config.spectator) {
 		if (this.fullOfSpectators()) {
-			socket.emit('KO', {
-				message: 'session has reached its maximum amount of spectators'
-			});
+			sendMessage(config.socket, 'KO', 'session has reached its maximum amount of spectators');
 			return false;
 		}
-		spectator = true;
-		player = new Player({
-			socket: config.socket
-		});
 	} else {
 		if (this.running) {
-			socket.emit('KO', {
-				message: 'game has been started'
-			});
+			sendMessage(config.socket, 'KO', 'game has been started');
 			return false;
 		}
 		if (this.fullOfPlayers()) {
-			socket.emit('KO', {
-				message: 'session has reached its maximum amount of players'
-			});
+			sendMessage(config.socket, 'KO', 'session has reached its maximum amount of players');
 			return false;
 		}
-		this.players.push(player = new Player({
-			socket: config.socket
-		}));
 	}
-	player.name = this.createUniquePlayerName();
+
+	// player is accepted!
+	player = new Player({
+		socket: config.socket,
+		isBot: config.isBot,
+		name: config.name || this.createUniquePlayerName()
+	});
 	this.everybody.push(player);
-	socket.emit('OK', { message: util.format('you successfully joined the session. Your name is "%s"', player.name) });
+	if (!config.spectator)
+		this.players.push(player);
+	sendMessage(config.socket, 'OK', util.format('you successfully joined the session. Your name is "%s"', player.name));
 	this.broadcast({
 		blacklist: player,
 		type: 'session',
 		data: {
 			event: 'newplayer',
 			name: player.name,
-			spectator: spectator
+			spectator: !!config.spectator
 		}
 	});
 
 	this.emit('newplayer', this, {
 		name: player.name,
-		spectator: spectator
+		spectator: !!config.spectator
 	});
 
 	return true;
@@ -124,47 +132,88 @@ Session.prototype.broadcast = function(config) {
 	for (i = 0; i < len; i++) {
 		player = this.everybody[i];
 		if (blacklist.indexOf(player) < 0) {
-			player.socket.emit(config.type, config.data);
+			if (player.isBot) {
+				console.log('--> ' + player.name + ':');
+				console.log(config.type);
+				console.log(config.data);
+				console.log('--<');
+			} else {
+				player.socket.emit(config.type, config.data);
+			}
 		}
 	}
 };
 
-Session.prototype.getPlayerBySocket = function(socket) {
-	var foundPlayer;
-	this.everybody.every(function(player) {
+Session.prototype.getPlayerIndexBySocket = function(socket) {
+	var
+	foundIndex = -1;
+	this.everybody.every(function(player, index) {
 		if (player.socket === socket) {
-			foundPlayer = player;
+			foundIndex = index;
 			return false;
 		}
+		return true;
 	});
-	return foundPlayer;
+	return foundIndex;
 };
 
-Session.prototype.removePlayer = function(socket) {
-	var i, len = this.everybody.length, player, index, spectator;
-	for (i = 0; i < len; i++) {
-		player = this.everybody[i];
-		if (player.socket === socket) {
-			this.everybody.splice(i, 1);
-			index = this.players.indexOf(player);
-			if (!(spectator = index < 0)) {
-				this.players.splice(index, 1);
-			}
-			this.emit('delplayer', this, {
-				name: player.name,
-				spectator: spectator
-			});
-			return;
-		}
+Session.prototype.removePlayer = function(index) {
+	var
+	player = this.everybody[index],
+	spectator;
+
+	// at first, remove player from all arrays
+	this.everybody.splice(index, 1);
+	index = this.players.indexOf(player);
+	if (!(spectator = index < 0)) {
+		this.players.splice(index, 1);
 	}
+	// then, emit a delete event
+	this.emit('delplayer', this, {
+		name: player.name,
+		spectator: spectator
+	});
+};
+
+Session.prototype.getPlayerIndexByName = function(name) {
+	var
+	foundIndex = -1;
+
+	this.everybody.every(function(player, index) {
+		if (player.name.toLowerCase() === name.toLowerCase()) {
+			foundIndex = index;
+			return false;
+		}
+		return true;
+	});
+	return foundIndex;
+};
+
+Session.prototype.playerDisconnect = function(socket) {
+	this.removePlayer(this.getPlayerIndexBySocket(socket));
 };
 
 Session.prototype.treatGameEvent = function(socket, data) {
-	var player = this.getPlayerBySocket(socket);
-	if (!player) {
+	var playerIndex = this.getPlayerIndexBySocket(socket);
+	if (playerIndex < 0) {
 		throw new Error("no player found for the socket argument");
 	}
 	if (data.action === 'start') {
+		this.addPlayer({
+			name: 'bot1',
+			isBot: true
+		});
+		this.addPlayer({
+			name: 'bot2',
+			isBot: true
+		});
+		// console.log(this.everybody);
+		// var me = this;
+		// setTimeout(function() {
+		// 	me.removePlayer(me.getPlayerIndexByName('bot1'));
+		// 	me.removePlayer(me.getPlayerIndexByName('bot2'));
+		// 	console.log(me.everybody);
+		// }, 1000);
 		this.start();
 	}
 };
@@ -172,7 +221,10 @@ Session.prototype.treatGameEvent = function(socket, data) {
 var prepareInitiativePhase = function(session) {
 	var
 	maxTailLen = -1,
-	largeTailplayers;
+	largeTailplayers,
+	players = session.players.slice(0);
+
+	// determine the initiative order
 	_.each(session.players, function(player, index) {
 		var tailLen = player.getGeneCount('tail');
 		if (tailLen > maxTailLen) {
