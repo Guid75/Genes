@@ -93,11 +93,12 @@
             addLineToOutput("KO: " + JSON.stringify(data));
         });
 	    socket.on('session', function(data) {
-            addLineToOutput('Received: ' + JSON.stringify(data));
+            addLineToOutput('Received (session): ' + JSON.stringify(data));
             Game.manageSessionMessage(data);
 	    });
 
         socket.on('game', function(data) {
+            addLineToOutput('Received (game): ' + JSON.stringify(data));
             Game.manageGameMessage(data);
         });
 

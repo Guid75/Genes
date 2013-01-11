@@ -59,4 +59,8 @@ io.sockets.on('connection', function(socket) {
     game.newPlayer(socket);
 });
 
+io.configure('development', function() {
+	io.disable('log');
+});
+
 console.log("Evo server launched on port %d", port);

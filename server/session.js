@@ -19,6 +19,7 @@ var Session = function(config) {
 	// all the game elements
 	this.board = undefined;
 	this.auctionTable = undefined;
+	this.initiative = [];
 	this.infoBoard = undefined;
 	this.geneBag = undefined;
 	this.eventCards = undefined;
@@ -56,16 +57,18 @@ var sendMessage = function(socket, event, message) {
 	if (socket) {
 		socket.emit(event, { message: message });
 	} else {
-		if (event === 'KO')
+		if (event === 'KO') {
 			console.error('error: ' + message);
-		else
+		} else {
 			console.log(message);
+		}
 	}
 };
 
 Session.prototype.addPlayer = function(config) {
 	var
-	player;
+	player,
+	playerData;
 
 	config = config || {};
 	if (!config.isBot && !config.socket) {
@@ -76,16 +79,16 @@ Session.prototype.addPlayer = function(config) {
 	if (config.spectator) {
 		if (this.fullOfSpectators()) {
 			sendMessage(config.socket, 'KO', 'session has reached its maximum amount of spectators');
-			return false;
+			return null;
 		}
 	} else {
 		if (this.running) {
 			sendMessage(config.socket, 'KO', 'game has been started');
-			return false;
+			return null;
 		}
 		if (this.fullOfPlayers()) {
 			sendMessage(config.socket, 'KO', 'session has reached its maximum amount of players');
-			return false;
+			return null;
 		}
 	}
 
@@ -96,17 +99,22 @@ Session.prototype.addPlayer = function(config) {
 		name: config.name || this.createUniquePlayerName()
 	});
 	this.everybody.push(player);
-	if (!config.spectator)
+	if (!config.spectator) {
 		this.players.push(player);
+	}
 	sendMessage(config.socket, 'OK', util.format('you successfully joined the session. Your name is "%s"', player.name));
+	playerData = {
+		event: 'newplayer',
+		name: player.name,
+		spectator: !!config.spectator
+	};
+	if (!config.spectator) {
+		playerData.playerIndex = this.players.length - 1;
+	}
 	this.broadcast({
 		blacklist: player,
 		type: 'session',
-		data: {
-			event: 'newplayer',
-			name: player.name,
-			spectator: !!config.spectator
-		}
+		data: playerData
 	});
 
 	this.emit('newplayer', this, {
@@ -114,7 +122,7 @@ Session.prototype.addPlayer = function(config) {
 		spectator: !!config.spectator
 	});
 
-	return true;
+	return player;
 };
 
 Session.prototype.broadcast = function(config) {
@@ -132,13 +140,14 @@ Session.prototype.broadcast = function(config) {
 	for (i = 0; i < len; i++) {
 		player = this.everybody[i];
 		if (blacklist.indexOf(player) < 0) {
-			if (player.isBot) {
+			botVerbose = false; // TODO: define a better place for options
+			if (!player.isBot) {
+				player.socket.emit(config.type, config.data);
+			} else if (botVerbose) {
 				console.log('--> ' + player.name + ':');
 				console.log(config.type);
 				console.log(config.data);
 				console.log('--<');
-			} else {
-				player.socket.emit(config.type, config.data);
 			}
 		}
 	}
@@ -165,7 +174,7 @@ Session.prototype.removePlayer = function(index) {
 	// at first, remove player from all arrays
 	this.everybody.splice(index, 1);
 	index = this.players.indexOf(player);
-	if (!(spectator = index < 0)) {
+	if ((spectator = (index < 0)) == false) {
 		this.players.splice(index, 1);
 	}
 	// then, emit a delete event
@@ -194,49 +203,104 @@ Session.prototype.playerDisconnect = function(socket) {
 };
 
 Session.prototype.treatGameEvent = function(socket, data) {
-	var playerIndex = this.getPlayerIndexBySocket(socket);
+	var
+	playerIndex = this.getPlayerIndexBySocket(socket),
+	i, j, c,
+	player;
 	if (playerIndex < 0) {
 		throw new Error("no player found for the socket argument");
 	}
 	if (data.action === 'start') {
-		this.addPlayer({
-			name: 'bot1',
-			isBot: true
-		});
-		this.addPlayer({
-			name: 'bot2',
-			isBot: true
-		});
-		// console.log(this.everybody);
-		// var me = this;
-		// setTimeout(function() {
-		// 	me.removePlayer(me.getPlayerIndexByName('bot1'));
-		// 	me.removePlayer(me.getPlayerIndexByName('bot2'));
-		// 	console.log(me.everybody);
-		// }, 1000);
+		// TODO: remove the following until the dashes (just for tests)
+		for (i = 0; i < 4; i++) {
+			player = this.addPlayer({
+				name: 'bot' + (i + 1),
+				isBot: true
+			});
+			if (i >= 0 && i <= 2) {
+				c = 4;
+			} else {
+				c = 2;
+			}
+			for (j = 0; j < c; j++) {
+				player.addGene('tail');
+			}
+		}
+		// END OF TOTO ---------
 		this.start();
 	}
 };
 
+var randomizeArray = function(ar) {
+	var
+	i,
+	len,
+	swap;
+
+	for (i = 0, len = ar.length - 1; i < len; i++) {
+		swapIndex = _.random(i, len);
+		if (swapIndex === i) {
+			continue;
+		}
+		swap = ar[i];
+		ar[i] = ar[swapIndex];
+		ar[swapIndex] = swap;
+	}
+};
+
+var padNumber = function(num, pad) {
+	var
+	str = String(num),
+	len = str.length;
+
+	while (len < pad) {
+		str = '0' + str;
+		len++;
+	}
+
+	return str;
+};
+
 var prepareInitiativePhase = function(session) {
 	var
-	maxTailLen = -1,
-	largeTailplayers,
-	players = session.players.slice(0);
+	groups = {},
+	groupNames = [],
+	groupName,
+	group;
 
-	// determine the initiative order
-	_.each(session.players, function(player, index) {
-		var tailLen = player.getGeneCount('tail');
-		if (tailLen > maxTailLen) {
-			maxTailLen = tailLen;
-			largeTailPlayers = [ index ];
-		} else if (tailLen === maxTailLen) {
-			largeTailPlayers.push(index);
-		}
+	// 1. group players
+	session.players.forEach(function(player, index) {
+		groupName = util.format("%d%s", 6 - player.getGeneCount('tail'), padNumber(player.getDinosaurCount(), 2));
+		group = groups[groupName] || [];
+
+		group.push(index);
+		groups[groupName] = group;
 	});
 
-	if (largeTailPlayers.length === 1) {
+	// 2. shake all groups (= randomize players indexes)
+	for (groupName in groups) {
+		if (groups.hasOwnProperty(groupName)) {
+			randomizeArray(groups[groupName]);
+			groupNames.push(groupName);
+		}
 	}
+
+	// 3. re-gather all to build the initiative queue
+	session.initiative = [];
+	groupNames.sort().forEach(function(groupName) {
+		groups[groupName].forEach(function(playerIndex) {
+			session.initiative.push(playerIndex);
+		});
+	});
+
+	// 4. finally, send the result to all players
+	session.broadcast({
+		type: 'game',
+		data: {
+			event: 'initiative',
+			data: session.initiative
+		}
+	});
 };
 
 var prepareWeatherPhase = function(session) {
@@ -279,6 +343,12 @@ var preparePhase = function(session) {
 };
 
 var initTurn = function(session) {
+	// prepare all players
+	session.players.forEach(function(player) {
+//		player.initSession();
+		player.dinosaurs = 3; // TODO: remove it (just for tests)
+	});
+	// launch the first phase
 	session.phase = 1;
 	preparePhase(session);
 };

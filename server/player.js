@@ -17,6 +17,8 @@ var Player = function(config){
 Player.prototype.initSession = function() {
 	// init all data structure
     this.genes = null;
+
+	this.dinosaurs = 1;
 };
 
 Player.prototype.addGene = function(gene) {
@@ -25,13 +27,17 @@ Player.prototype.addGene = function(gene) {
 
 	if (!_.isNumber(this.genes[gene]))
 		this.genes[gene] = 0;
-	this.genes[gene] = 1;
+	this.genes[gene]++;
 };
 
 Player.prototype.getGeneCount = function(gene) {
-	if (this.genes && _.isNumber(this.genes[gene]))
-		return this.genes[gene];
-	return 0;
+	if (!gene)
+		throw new Error('Player.getGeneCount(): a gene argument is required');
+	return (this.genes && _.isNumber(this.genes[gene])) ? this.genes[gene] : 0;
+};
+
+Player.prototype.getDinosaurCount = function() {
+	return this.dinosaurs;
 };
 
 exports.Player = Player;
