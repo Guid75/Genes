@@ -261,6 +261,16 @@ var padNumber = function(num, pad) {
 	return str;
 };
 
+var broadcastPhaseEnd = function(session) {
+	session.broadcast({
+		type: 'game',
+		data: {
+			event: 'endphase',
+			phase: session.phase
+		}
+	});
+};
+
 var prepareInitiativePhase = function(session) {
 	var
 	groups = {},
@@ -301,6 +311,8 @@ var prepareInitiativePhase = function(session) {
 			data: session.initiative
 		}
 	});
+
+	broadcastPhaseEnd(session);
 };
 
 var prepareWeatherPhase = function(session) {
@@ -320,6 +332,15 @@ var prepareMeteoritePhase = function(session) {
 };
 
 var preparePhase = function(session) {
+	// broadcast the phase beginning
+	session.broadcast({
+		type: 'game',
+		data: {
+			event: 'startphase',
+			phase: session.phase
+		}
+	});
+
 	switch (session.phase) {
 	case 1:
 		prepareInitiativePhase(session);
