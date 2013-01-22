@@ -15,7 +15,6 @@ events = require('events');
  */
 
 var InfoBoard = function() {
-	this.initiative = []; // order of players for the current round, an array of player indexes
 	this.currentWeather = 0; // yellow (see color definitions)
 };
 
@@ -37,12 +36,5 @@ var getNextWeather = function(weather, dice) {
 InfoBoard.prototype.moveNextWeather = function(dice) {
 	this.currentWeather = getNextWeather(this.currentWeather, dice);
 };
-
-// Session.prototype.playersCount = function() { return this.players.length; };
-// Session.prototype.spectatorsCount = function() { return this.everybody.length - this.players.length; };
-// Session.prototype.isRunning = function() { return this.running; };
-// Session.prototype.fullOfPlayers = function() { return this.players.length === maxPlayers; };
-// Session.prototype.fullOfSpectators = function() { return this.spectatorsCount() === maxSpectators; };
-// Session.prototype.isRunnable = function() { return this.players.length >= 3; }; // if we have the right count of players to start a game session
 
 exports.InfoBoard = InfoBoard;

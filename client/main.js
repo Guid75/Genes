@@ -82,6 +82,7 @@
         outputEl = $('#textarea-output')[0];
         socket.on('connect', function(){
             addLineToOutput('connected on the game server');
+			$('#message-type-select')[0].value = 'game';
         });
         socket.on('disconnect', function() {
             addLineToOutput('Disconnected from the game server');

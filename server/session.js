@@ -24,6 +24,7 @@ var Session = function(config) {
 	this.geneBag = undefined;
 	this.eventCards = undefined;
 	this.pawns = undefined; // dinosaurs
+	this.leftRounds = undefined;
 };
 
 util.inherits(Session, events.EventEmitter);
@@ -261,16 +262,6 @@ var padNumber = function(num, pad) {
 	return str;
 };
 
-var broadcastPhaseEnd = function(session) {
-	session.broadcast({
-		type: 'game',
-		data: {
-			event: 'endphase',
-			phase: session.phase
-		}
-	});
-};
-
 var prepareInitiativePhase = function(session) {
 	var
 	groups = {},
@@ -303,7 +294,7 @@ var prepareInitiativePhase = function(session) {
 		});
 	});
 
-	// 4. finally, send the result to all players
+	// 4. finally, broadcast the result to all players
 	session.broadcast({
 		type: 'game',
 		data: {
@@ -312,11 +303,71 @@ var prepareInitiativePhase = function(session) {
 		}
 	});
 
-	broadcastPhaseEnd(session);
+	// no need to wait player events to launch the next phase
+	nextPhase(session);
+};
+
+/*
+ * Here follow weather codes:
+ * 0 = yellow
+ * 1 = bottom green
+ * 2 = bottom brown
+ * 3 = gray
+ * 4 = top brown
+ * 5 = top green
+ */
+
+var getWeatherColor = function(weatherCode) {
+	switch (weatherCode) {
+	case 0:
+		return 'yellow';
+	case 1:
+	case 5:
+		return 'green';
+	case 2:
+	case 4:
+		return 'brown';
+	case 3:
+		return 'gray';
+	default:
+		return '';
+	}
+};
+
+/*!
+ * \brief return the next weather state index
+ */
+var getNextWeather = function(weather, dice) {
+	switch (dice) {
+	case 1:
+		return (weather + 1) % 6;
+	case 2:
+		return weather;
+	default:
+		return weather ? weather - 1 : 5;
+	}
 };
 
 var prepareWeatherPhase = function(session) {
-	// TODO
+	var
+	dice = _.random(1, 6);
+
+	// move the weather pawn
+	session.currentWeather = getNextWeather(session.currentWeather, dice);
+
+	// broadcast results
+	session.broadcast({
+		type: 'game',
+		data: {
+			event: 'weather',
+			dice: dice,
+			weather: session.currentWeather,
+			color: getWeatherColor(session.currentWeather)
+		}
+	});
+
+	// no need to wait player events to launch the next phase
+	nextPhase(session);
 };
 
 var prepareMoveAndFightPhase = function(session) {
@@ -336,7 +387,7 @@ var preparePhase = function(session) {
 	session.broadcast({
 		type: 'game',
 		data: {
-			event: 'startphase',
+			event: 'newphase',
 			phase: session.phase
 		}
 	});
@@ -363,6 +414,12 @@ var preparePhase = function(session) {
 	}
 };
 
+// launch the next phase
+var nextPhase = function(session) {
+	session.phase = session.phase % 6 + 1;
+	preparePhase(session);
+};
+
 var initTurn = function(session) {
 	// prepare all players
 	session.players.forEach(function(player) {
@@ -386,6 +443,14 @@ Session.prototype.start = function() {
 		horn: 8,
 		leg: 12
 	};
+
+	this.currentWeather = 0; // yellow (see color definitions)
+
+	// remaining rounds
+	session.leftRounds = 16 - session.players.count;
+
+	// prepare all players
+	session.players.forEach(function(player) { player.initSession(); });
 
 	this.turn = 1;
 	initTurn(this);
