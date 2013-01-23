@@ -2,6 +2,7 @@ var
 Player = require('./player.js').Player,
 _ = require('underscore'),
 util = require('util'),
+BoardCore = require('../common/board-core.js'),
 events = require('events');
 
 var maxPlayers = 5;
@@ -447,10 +448,12 @@ Session.prototype.start = function() {
 	this.currentWeather = 0; // yellow (see color definitions)
 
 	// remaining rounds
-	session.leftRounds = 16 - session.players.count;
+	this.leftRounds = 16 - this.players.count;
 
 	// prepare all players
-	session.players.forEach(function(player) { player.initSession(); });
+	this.players.forEach(function(player) { player.initSession(); });
+
+	console.log(BoardCore.createBoard('A', 'C'));
 
 	this.turn = 1;
 	initTurn(this);
