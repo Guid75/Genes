@@ -228,7 +228,8 @@ Session.prototype.treatGameEvent = function(socket, data) {
 				player.addGene('tail');
 			}
 		}
-		// END OF TOTO ---------
+		// END OF TODO ---------
+		this.boardParts = [data.leftBoardPart, data.rightBoardPart];
 		this.start();
 	}
 };
@@ -432,9 +433,9 @@ var initTurn = function(session) {
 	preparePhase(session);
 };
 
-Session.prototype.start = function() {
+var prepareGame = function(session) {
 	// init all data structure
-	this.geneBag = {
+	session.geneBag = {
 		card: 6,
 		tail: 6,
 		mutant: 6,
@@ -445,15 +446,31 @@ Session.prototype.start = function() {
 		leg: 12
 	};
 
-	this.currentWeather = 0; // yellow (see color definitions)
+	session.currentWeather = 0; // yellow (see color definitions)
 
 	// remaining rounds
-	this.leftRounds = 16 - this.players.count;
+	session.leftRounds = 16 - session.players.count;
 
 	// prepare all players
-	this.players.forEach(function(player) { player.initSession(); });
+	session.players.forEach(function(player) { player.initSession(); });
 
-	console.log(BoardCore.createBoard('A', 'C'));
+	// create board
+	session.board = BoardCore.createBoard(session.boardParts[0], session.boardParts[1]);
+
+	// broadcast the game start
+	session.broadcast({
+		type: 'game',
+		data: {
+			event: 'start',
+			leftBoardPart: session.boardParts[0],
+			rightBoardPart: session.boardParts[1]
+		}
+	});
+};
+
+Session.prototype.start = function() {
+	// ini all data structure and draw lots
+	prepareGame(this);
 
 	this.turn = 1;
 	initTurn(this);

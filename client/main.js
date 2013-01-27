@@ -72,7 +72,7 @@
 
         elem.setAttribute('width', 800);
         elem.setAttribute('height', 600);
-        Game.board.drawHexaGrid(context, 20, 20, 20);
+		Game.board.context = context;
     }
 
     window.addEventListener('load', function () {
@@ -128,7 +128,7 @@
             sendAndClear(inputEl, socket);
         };
 
-        inputEl.value = '{ // enter your message fields below\n  action: \'start\'\n}';
+        inputEl.value = '{ // enter your message fields below\n  action: \'start\',\n  leftBoardPart: \'A\',\n  rightBoardPart: \'C\'\n}';
         inputEl.focus();
         var pos = inputEl.value.indexOf('\n') + 1;
         inputEl.setSelectionRange(pos, pos);
