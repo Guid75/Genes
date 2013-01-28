@@ -72,6 +72,7 @@
 
         elem.setAttribute('width', 800);
         elem.setAttribute('height', 600);
+		Game.board.canvas = elem;
 		Game.board.context = context;
     }
 

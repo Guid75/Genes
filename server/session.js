@@ -3,7 +3,8 @@ Player = require('./player.js').Player,
 _ = require('underscore'),
 util = require('util'),
 BoardCore = require('../common/board-core.js'),
-events = require('events');
+events = require('events'),
+sugar = require('sugar');
 
 var maxPlayers = 5;
 var maxSpectators = 100;
@@ -234,23 +235,6 @@ Session.prototype.treatGameEvent = function(socket, data) {
 	}
 };
 
-var randomizeArray = function(ar) {
-	var
-	i,
-	len,
-	swap;
-
-	for (i = 0, len = ar.length - 1; i < len; i++) {
-		swapIndex = _.random(i, len);
-		if (swapIndex === i) {
-			continue;
-		}
-		swap = ar[i];
-		ar[i] = ar[swapIndex];
-		ar[swapIndex] = swap;
-	}
-};
-
 var padNumber = function(num, pad) {
 	var
 	str = String(num),
@@ -283,7 +267,7 @@ var prepareInitiativePhase = function(session) {
 	// 2. shake all groups (= randomize players indexes)
 	for (groupName in groups) {
 		if (groups.hasOwnProperty(groupName)) {
-			randomizeArray(groups[groupName]);
+			groups[groupName] = groups[groupName].randomize();
 			groupNames.push(groupName);
 		}
 	}
@@ -456,6 +440,9 @@ var prepareGame = function(session) {
 
 	// create board
 	session.board = BoardCore.createBoard(session.boardParts[0], session.boardParts[1]);
+
+	// TODO: randomly distribute starting points
+	console.log(session.board.starts);
 
 	// broadcast the game start
 	session.broadcast({

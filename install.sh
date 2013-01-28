@@ -5,4 +5,5 @@ cd server
 npm install mime
 npm install socket.io
 npm install underscore
+npm install sugar
 cd -

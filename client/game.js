@@ -8,8 +8,7 @@ Game.manageSessionMessage = function(data) {
 
 Game.manageGameMessage = function(data) {
 	if (data.event === 'start') {
-		console.log(data);
 		Game.board.board = Game.board.createBoard(data.leftBoardPart, data.rightBoardPart);
-        Game.board.drawHexaGrid(20);
+		Game.board.drawAll();
 	}
 }

@@ -83,7 +83,7 @@ var joinAction = function(socket, data) {
     }
 
 	if (session) { // remove of the old session
-		session.removePlayer(socket);
+		session.removePlayer(session.getPlayerIndexBySocket(socket));
 		socket2session[socket.id] = null; // TODO: remove definitively the field
 	}
 
@@ -101,7 +101,7 @@ var joinAction = function(socket, data) {
 var leaveAction = function(socket, data) {
     session = socket2session[socket.id];
 	if (session) {
-		session.removePlayer(socket);
+		session.removePlayer(session.getPlayerIndexBySocket(socket));
 		socket2session[socket.id] = null; // TODO: remove definitively the field
 	}
 };
@@ -113,7 +113,7 @@ exports.newPlayer = function(socket) {
         // remove it from its session
         session = socket2session[socket.id];
 	    if (session) {
-		    session.removePlayer(socket);
+			session.removePlayer(session.getPlayerIndexBySocket(socket));
 		    socket2session[socket.id] = null; // TODO: remove definitively the field
 	    }
 
