@@ -407,17 +407,14 @@ var nextPhase = function(session) {
 };
 
 var initTurn = function(session) {
-	// prepare all players
-	session.players.forEach(function(player) {
-//		player.initSession();
-		player.dinosaurs = 3; // TODO: remove it (just for tests)
-	});
 	// launch the first phase
 	session.phase = 1;
 	preparePhase(session);
 };
 
 var prepareGame = function(session) {
+	var startPoints;
+
 	// init all data structure
 	session.geneBag = {
 		card: 6,
@@ -435,14 +432,14 @@ var prepareGame = function(session) {
 	// remaining rounds
 	session.leftRounds = 16 - session.players.count;
 
-	// prepare all players
-	session.players.forEach(function(player) { player.initSession(); });
-
 	// create board
 	session.board = BoardCore.createBoard(session.boardParts[0], session.boardParts[1]);
 
-	// TODO: randomly distribute starting points
-	console.log(session.board.starts);
+	// randomly distribute starting points
+	var startPoints = session.board.starts.slice(0).randomize();
+	startPoints.forEach(function(point, index) {
+		session.players[index].initSession(point);
+	});
 
 	// broadcast the game start
 	session.broadcast({
@@ -450,7 +447,9 @@ var prepareGame = function(session) {
 		data: {
 			event: 'start',
 			leftBoardPart: session.boardParts[0],
-			rightBoardPart: session.boardParts[1]
+			rightBoardPart: session.boardParts[1],
+			startPoints: startPoints,
+			// TODO: event cards
 		}
 	});
 };

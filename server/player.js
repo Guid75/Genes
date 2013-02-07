@@ -14,11 +14,13 @@ var Player = function(config){
 };
 
 // init before a session
-Player.prototype.initSession = function() {
+Player.prototype.initSession = function(firstDinoPoint) {
 	// init all data structure
     this.genes = null;
 
-	this.dinosaurs = 1;
+	this.dinosaurs = [ firstDinoPoint.slice(0) ];
+
+	console.log(this.dinosaurs);
 };
 
 Player.prototype.addGene = function(gene) {
